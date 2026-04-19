@@ -1,0 +1,281 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>システム英単語 Webテスト</title>
+    <style>
+        body { font-family: 'Helvetica Neue', Arial, sans-serif; background-color: #f0f2f5; text-align: center; color: #333; margin: 0; padding: 20px; }
+        #app-container { 
+            max-width: 450px; margin: 0 auto; background: white; 
+            padding: 30px 20px; border-radius: 15px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); 
+            min-height: 500px;
+        }
+        h1 { color: #0056b3; font-size: 24px; margin-bottom: 5px; }
+        .subtitle { font-size: 14px; color: #666; margin-bottom: 25px; }
+        
+        .setting-box { background: #f8f9fa; padding: 15px; border-radius: 10px; margin-bottom: 20px; text-align: left; border: 1px solid #e9ecef; }
+        .setting-title { margin-top: 0; font-weight: bold; color: #495057; font-size: 14px; margin-bottom: 10px; display: block; }
+        
+        .select-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; margin-bottom: 10px; }
+        .btn-opt { 
+            padding: 10px 5px; font-size: 13px; background-color: #fff; border: 1px solid #ced4da; 
+            border-radius: 6px; cursor: pointer; transition: all 0.2s; 
+        }
+        .btn-opt:hover { background-color: #e9ecef; }
+        .btn-opt.active { background-color: #0056b3; color: white; border-color: #0056b3; }
+
+        .btn-main { 
+            padding: 16px; font-size: 18px; margin: 10px 0; cursor: pointer; border: none; 
+            border-radius: 8px; font-weight: bold; width: 100%; transition: transform 0.1s;
+        }
+        .btn-main:active { transform: scale(0.98); }
+        .btn-blue { background-color: #007bff; color: white; }
+        .btn-red { background-color: #dc3545; color: white; }
+        
+        .number { color: #6c757d; font-size: 14px; font-weight: bold; text-align: left; }
+        .status { font-size: 16px; margin: 10px 0; color: #495057; font-weight: bold;}
+        .card { font-size: 38px; font-weight: bold; margin: 60px 0; min-height: 80px; display: flex; align-items: center; justify-content: center; text-align: center; }
+        
+        .btn-action { padding: 15px; font-size: 16px; border: none; border-radius: 8px; font-weight: bold; cursor: pointer; }
+        .btn-full { width: 100%; background-color: #f1f3f5; color: #333; }
+        .btn-half { width: 48%; }
+        .btn-green { background-color: #28a745; color: white; }
+        .btn-wrong { background-color: #e03131; color: white; }
+        
+        .hidden { display: none !important; }
+        
+        .custom-inputs { display: flex; align-items: center; gap: 5px; margin-top: 10px;}
+        input[type="number"] { width: 60px; padding: 8px 5px; border: 1px solid #ced4da; border-radius: 4px; text-align: center; font-size: 14px; }
+    </style>
+</head>
+<body>
+
+<div id="app-container">
+    <div id="setup-screen">
+        <h1>システム英単語</h1>
+        <div class="subtitle">Web Test Application</div>
+        
+        <div class="setting-box">
+            <span class="setting-title">■ 出題数を選択</span>
+            <div class="select-grid">
+                <button class="btn-opt count-btn active" onclick="setCount(10, this)">10問</button>
+                <button class="btn-opt count-btn" onclick="setCount(20, this)">20問</button>
+                <button class="btn-opt count-btn" onclick="setCount(50, this)">50問</button>
+                <button class="btn-opt count-btn" onclick="setCount(100, this)">100問</button>
+            </div>
+            <input type="hidden" id="question-count" value="10">
+        </div>
+
+        <div class="setting-box">
+            <span class="setting-title">■ 範囲を選択（複数選択・組み合わせOK）</span>
+            <div class="select-grid" style="grid-template-columns: repeat(2, 1fr);">
+                <button class="btn-opt stage-btn active" data-start="1" data-end="600" onclick="toggleStageBtn(this)">Stage 1<br><small>(1-600)</small></button>
+                <button class="btn-opt stage-btn" data-start="601" data-end="1200" onclick="toggleStageBtn(this)">Stage 2<br><small>(601-1200)</small></button>
+                <button class="btn-opt stage-btn" data-start="1201" data-end="1700" onclick="toggleStageBtn(this)">Stage 3<br><small>(1201-1700)</small></button>
+                <button class="btn-opt stage-btn" data-start="1701" data-end="2027" onclick="toggleStageBtn(this)">Stage 4<br><small>(1701-2027)</small></button>
+            </div>
+            
+            <div class="custom-inputs">
+                <button class="btn-opt custom-btn" id="custom-range-toggle" onclick="toggleBtn(this)" style="flex-grow: 1; padding: 12px;">自由指定</button>
+                <input type="number" id="custom-start" value="1" min="1" max="2027" step="100">
+                <span style="color: #666;">〜</span>
+                <input type="number" id="custom-end" value="600" min="0" max="2027" step="100">
+            </div>
+        </div>
+
+        <button class="btn-main btn-blue" onclick="startTest('normal')">通常テスト開始</button>
+        <button class="btn-main btn-red" onclick="startTest('weak')" style="background-color: #fa5252;">苦手克服モード</button>
+    </div>
+
+    <div id="test-screen" class="hidden">
+        <div class="number" id="word-number">No.0000</div>
+        <div class="status" id="status-text">1 / 10</div>
+        <div class="card" id="word-display">Word</div>
+        <div id="flip-controls">
+            <button class="btn-action btn-full" onclick="flipCard()">答えを見る (Space)</button>
+        </div>
+        <div id="judge-controls" class="hidden" style="display: flex; justify-content: space-between;">
+            <button class="btn-action btn-half btn-wrong" onclick="markIncorrect()">✕ 苦手 (←)</button>
+            <button class="btn-action btn-half btn-green" onclick="markCorrect()">〇 正解 (→)</button>
+        </div>
+    </div>
+
+    <div id="result-screen" class="hidden">
+        <h2 style="margin-top: 40px;">Result</h2>
+        <div class="card" id="score-display" style="font-size: 32px; margin: 30px 0;">0/0</div>
+        <p id="saving-text" style="color: #666;">データを保存しています...</p>
+        <button class="btn-main btn-blue" onclick="location.reload()">タイトルに戻る (Enter/Space)</button>
+    </div>
+</div>
+
+<script>
+    let words = [];
+    let currentMode = 'normal';
+    let currentIndex = 0;
+    let isFront = true;
+    let correctWords = [];
+    let incorrectWords = [];
+
+    // 出題数の選択
+    function setCount(num, btn) {
+        document.getElementById('question-count').value = num;
+        document.querySelectorAll('.count-btn').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+    }
+
+    // トグルボタン用
+    function toggleBtn(btn) {
+        btn.classList.toggle('active');
+    }
+
+    // Stageボタンが押された時、選ばれたすべての範囲を計算して自由指定ボックスに反映
+    function toggleStageBtn(btn) {
+        btn.classList.toggle('active');
+        
+        const activeStages = document.querySelectorAll('.stage-btn.active');
+        if (activeStages.length > 0) {
+            let minStart = Infinity;
+            let maxEnd = 0;
+            
+            activeStages.forEach(b => {
+                const s = parseInt(b.getAttribute('data-start'));
+                const e = parseInt(b.getAttribute('data-end'));
+                if (s < minStart) minStart = s;
+                if (e > maxEnd) maxEnd = e;
+            });
+            
+            document.getElementById('custom-start').value = minStart;
+            document.getElementById('custom-end').value = maxEnd;
+        }
+    }
+
+    async function startTest(mode) {
+        currentMode = mode;
+        const count = document.getElementById('question-count').value;
+        const selectedRanges = [];
+
+        // 通常モードの時のみ、範囲指定をチェックする
+        if (mode === 'normal') {
+            const activeStages = document.querySelectorAll('.stage-btn.active');
+            activeStages.forEach(btn => {
+                selectedRanges.push([
+                    parseInt(btn.getAttribute('data-start')),
+                    parseInt(btn.getAttribute('data-end'))
+                ]);
+            });
+
+            const customBtn = document.getElementById('custom-range-toggle');
+            if (customBtn.classList.contains('active')) {
+                const cStart = parseInt(document.getElementById('custom-start').value) || 1;
+                const cEnd = parseInt(document.getElementById('custom-end').value) || 2027;
+                selectedRanges.push([cStart, cEnd]);
+            }
+            
+            if(selectedRanges.length === 0) {
+                alert("出題範囲を少なくとも1つ選択（青色に）してください。");
+                return;
+            }
+        }
+
+        const response = await fetch('/get_words', {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify({mode: mode, count: count, ranges: selectedRanges})
+        });
+        
+        const data = await response.json();
+        if(data.error) { alert(data.error); return; }
+        
+        words = data.words;
+        currentIndex = 0;
+        correctWords = [];
+        incorrectWords = [];
+        
+        document.getElementById('setup-screen').classList.add('hidden');
+        document.getElementById('test-screen').classList.remove('hidden');
+        updateDisplay();
+    }
+
+    function updateDisplay() {
+        if(currentIndex >= words.length) { finishTest(); return; }
+
+        const word = words[currentIndex];
+        document.getElementById('status-text').innerText = `${currentIndex + 1} / ${words.length}`;
+        document.getElementById('word-number').innerText = `No.${word.Number}`;
+
+        if(isFront) {
+            document.getElementById('word-display').innerText = word.English;
+            document.getElementById('flip-controls').classList.remove('hidden');
+            document.getElementById('judge-controls').classList.add('hidden');
+        } else {
+            document.getElementById('word-display').innerText = word.Japanese;
+            document.getElementById('flip-controls').classList.add('hidden');
+            document.getElementById('judge-controls').classList.remove('hidden');
+        }
+    }
+
+    function flipCard() { isFront = false; updateDisplay(); }
+    function markCorrect() { correctWords.push(words[currentIndex]); nextCard(); }
+    function markIncorrect() { incorrectWords.push(words[currentIndex]); nextCard(); }
+    function nextCard() { currentIndex++; isFront = true; updateDisplay(); }
+
+    async function finishTest() {
+        document.getElementById('test-screen').classList.add('hidden');
+        document.getElementById('result-screen').classList.remove('hidden');
+        document.getElementById('score-display').innerText = `${words.length}問中 ${correctWords.length}問正解`;
+
+        await fetch('/save_results', {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify({
+                mode: currentMode,
+                correct_words: correctWords,
+                incorrect_words: incorrectWords
+            })
+        });
+        document.getElementById('saving-text').innerText = "学習記録を保存しました。";
+    }
+
+    // キー操作の制御
+    document.addEventListener('keydown', (e) => {
+        // 結果画面が表示されている時の処理（EnterかSpaceでタイトルに戻る）
+        if (!document.getElementById('result-screen').classList.contains('hidden')) {
+            if (e.code === 'Space' || e.code === 'Enter') {
+                e.preventDefault();
+                location.reload();
+            }
+            return; 
+        }
+
+        // テスト画面が表示されていない時は何もしない
+        if (document.getElementById('test-screen').classList.contains('hidden')) return;
+
+        // テスト中のキー操作
+        if ((e.code === 'Space' || e.code === 'Enter') && isFront) { 
+            // 表面（英語）の時：SpaceかEnterで裏面（答え）を見る
+            e.preventDefault(); 
+            flipCard(); 
+        } else if (e.code === 'ArrowLeft' && !isFront) {
+            // 裏面の時：左矢印で不正解
+            markIncorrect();
+        } else if (e.code === 'ArrowRight' && !isFront) {
+            // 裏面の時：右矢印で正解
+            markCorrect();
+        } else if (e.code === 'Enter' && !isFront) {
+            // 裏面の時：Enterで英語と日本語を入れ替える
+            e.preventDefault();
+            const wordDisplay = document.getElementById('word-display');
+            const currentWord = words[currentIndex];
+            // 現在の表示が日本語なら英語に、英語なら日本語に切り替え
+            if (wordDisplay.innerText === currentWord.Japanese) {
+                wordDisplay.innerText = currentWord.English;
+            } else {
+                wordDisplay.innerText = currentWord.Japanese;
+            }
+        }
+    });
+</script>
+
+</body>
+</html>
