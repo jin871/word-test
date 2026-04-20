@@ -105,7 +105,7 @@
     <div id="result-screen" class="hidden">
         <h2 style="margin-top: 40px;">Result</h2>
         <div class="card" id="score-display" style="font-size: 32px; margin: 30px 0;">0/0</div>
-        <p id="saving-text" style="color: #666;"></p>
+        <p id="saving-text" style="color: #28a745; font-weight: bold;"></p>
         <button class="btn-main btn-blue" onclick="location.reload()">タイトルに戻る (Enter/Space)</button>
     </div>
 </div>
@@ -166,7 +166,6 @@
             words = data.words;
 
         } else {
-            // 苦手モード：LocalStorageキー名 'weak_words' を使用
             let saved = JSON.parse(localStorage.getItem('weak_words') || '[]');
             if (saved.length === 0) { alert("苦手な単語が登録されていません。"); return; }
             saved.sort(() => Math.random() - 0.5);
@@ -199,7 +198,7 @@
         document.getElementById('result-screen').classList.remove('hidden');
         document.getElementById('score-display').innerText = `${words.length}問中 ${correctWords.length}問正解`;
 
-        // LocalStorageに保存 (キー名: weak_words)
+        // LocalStorageに保存
         let saved = JSON.parse(localStorage.getItem('weak_words') || '[]');
         let weakDict = {};
         saved.forEach(w => weakDict[w.Number] = w);
@@ -210,10 +209,11 @@
         }
 
         localStorage.setItem('weak_words', JSON.stringify(Object.values(weakDict)));
-        document.getElementById('saving-text').innerText = "学習記録を保存しました。";
+        
+        // メッセージを更新
+        document.getElementById('saving-text').innerText = "学習記録をお使いの端末に保存しました！";
     }
 
-    // キーボード操作
     document.addEventListener('keydown', (e) => {
         if (!document.getElementById('test-screen').classList.contains('hidden')) {
             if ((e.code === 'Space' || e.code === 'Enter') && isFront) { e.preventDefault(); flipCard(); }
