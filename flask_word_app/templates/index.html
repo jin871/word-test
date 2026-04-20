@@ -5,49 +5,61 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>システム英単語 Webテスト</title>
     <style>
-        body { font-family: 'Helvetica Neue', Arial, sans-serif; background-color: #f0f2f5; text-align: center; color: #333; margin: 0; padding: 20px; }
+        /* 全要素に適用：パディングによるはみ出しを防止 */
+        * { box-sizing: border-box; } 
+        
+        body { font-family: 'Helvetica Neue', Arial, sans-serif; background-color: #f0f2f5; text-align: center; color: #333; margin: 0; padding: 15px; }
+        
         #app-container { 
-            max-width: 450px; margin: 0 auto; background: white; 
-            padding: 30px 20px; border-radius: 15px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); 
+            max-width: 450px; width: 100%; margin: 0 auto; background: white; 
+            padding: 25px 15px; border-radius: 15px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); 
             min-height: 500px;
         }
-        h1 { color: #0056b3; font-size: 24px; margin-bottom: 5px; }
-        .subtitle { font-size: 14px; color: #666; margin-bottom: 25px; }
+        
+        h1 { color: #0056b3; font-size: 22px; margin-bottom: 5px; }
+        .subtitle { font-size: 13px; color: #666; margin-bottom: 20px; }
         
         .setting-box { background: #f8f9fa; padding: 15px; border-radius: 10px; margin-bottom: 20px; text-align: left; border: 1px solid #e9ecef; }
-        .setting-title { margin-top: 0; font-weight: bold; color: #495057; font-size: 14px; margin-bottom: 10px; display: block; }
+        .setting-title { margin-top: 0; font-weight: bold; color: #495057; font-size: 13px; margin-bottom: 10px; display: block; }
         
-        .select-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; margin-bottom: 10px; }
-        .select-grid-2 { display: grid; grid-template-columns: repeat(2, 1fr); gap: 8px; margin-bottom: 10px; }
+        .select-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px; margin-bottom: 10px; }
+        .select-grid-2 { display: grid; grid-template-columns: repeat(2, 1fr); gap: 6px; margin-bottom: 10px; }
         
         .btn-opt { 
-            padding: 10px 5px; font-size: 13px; background-color: #fff; border: 1px solid #ced4da; 
+            padding: 10px 2px; font-size: 12px; background-color: #fff; border: 1px solid #ced4da; 
             border-radius: 6px; cursor: pointer; transition: all 0.2s; 
         }
-        .btn-opt:hover { background-color: #e9ecef; }
         .btn-opt.active { background-color: #0056b3; color: white; border-color: #0056b3; }
 
         .btn-main { 
-            padding: 16px; font-size: 18px; margin: 10px 0; cursor: pointer; border: none; 
+            padding: 16px; font-size: 18px; margin: 8px 0; cursor: pointer; border: none; 
             border-radius: 8px; font-weight: bold; width: 100%; transition: transform 0.1s;
         }
-        .btn-main:active { transform: scale(0.98); }
         .btn-blue { background-color: #007bff; color: white; }
         .btn-red { background-color: #fa5252; color: white; }
         
+        /* 修正箇所：スマホで横幅を超えないように調整 */
+        .custom-inputs { 
+            display: flex; align-items: center; justify-content: center; 
+            gap: 5px; margin-top: 10px; background: #fff; padding: 10px 5px; 
+            border-radius: 6px; border: 1px solid #ced4da;
+        }
+        .custom-inputs span { font-size: 12px; white-space: nowrap; font-weight: bold; color: #495057; }
+        input[type="number"] { 
+            width: 75px; padding: 8px 2px; border: 1px solid #ced4da; 
+            border-radius: 4px; text-align: center; font-size: 15px;
+        }
+
         .number { color: #6c757d; font-size: 14px; font-weight: bold; text-align: left; }
         .status { font-size: 16px; margin: 10px 0; color: #495057; font-weight: bold;}
-        .card { font-size: 38px; font-weight: bold; margin: 60px 0; min-height: 80px; display: flex; align-items: center; justify-content: center; text-align: center; }
+        .card { font-size: 34px; font-weight: bold; margin: 50px 0; min-height: 80px; display: flex; align-items: center; justify-content: center; }
         
         .btn-action { padding: 15px; font-size: 16px; border: none; border-radius: 8px; font-weight: bold; cursor: pointer; }
-        .btn-full { width: 100%; background-color: #f1f3f5; color: #333; }
+        .btn-full { width: 100%; background-color: #f1f3f5; }
         .btn-half { width: 48%; }
         .btn-green { background-color: #28a745; color: white; }
         .btn-wrong { background-color: #e03131; color: white; }
-        
         .hidden { display: none !important; }
-        .custom-inputs { display: flex; align-items: center; gap: 5px; margin-top: 10px; background: #fff; padding: 8px; border-radius: 6px; border: 1px solid #ced4da;}
-        input[type="number"] { width: 70px; padding: 8px 5px; border: 1px solid #ced4da; border-radius: 4px; text-align: center; }
     </style>
 </head>
 <body>
@@ -71,17 +83,17 @@
         <div class="setting-box">
             <span class="setting-title">■ 範囲を選択（Stage指定）</span>
             <div class="select-grid-2">
-                <button class="btn-opt stage-btn active" data-start="1" data-end="600" onclick="toggleStageBtn(this)">Stage 1<br><small>(1-600)</small></button>
-                <button class="btn-opt stage-btn" data-start="601" data-end="1200" onclick="toggleStageBtn(this)">Stage 2<br><small>(601-1200)</small></button>
-                <button class="btn-opt stage-btn" data-start="1201" data-end="1700" onclick="toggleStageBtn(this)">Stage 3<br><small>(1201-1700)</small></button>
-                <button class="btn-opt stage-btn" data-start="1701" data-end="2027" onclick="toggleStageBtn(this)">Stage 4<br><small>(1701-2027)</small></button>
+                <button class="btn-opt stage-btn active" data-start="1" data-end="600" onclick="toggleStageBtn(this)">Stage 1<br>(1-600)</button>
+                <button class="btn-opt stage-btn" data-start="601" data-end="1200" onclick="toggleStageBtn(this)">Stage 2<br>(601-1200)</button>
+                <button class="btn-opt stage-btn" data-start="1201" data-end="1700" onclick="toggleStageBtn(this)">Stage 3<br>(1201-1700)</button>
+                <button class="btn-opt stage-btn" data-start="1701" data-end="2027" onclick="toggleStageBtn(this)">Stage 4<br>(1701-2027)</button>
             </div>
             
             <div class="custom-inputs">
-                <span style="flex-grow: 1; text-align: left; font-weight: bold; color: #495057; font-size: 13px; padding-left: 5px;">直接入力：</span>
-                <input type="number" id="custom-start" value="1" min="0" max="2100" step="100" oninput="clearStageSelection()" onkeydown="if(event.key === 'Enter') startTest('normal')">
-                <span style="color: #666;">〜</span>
-                <input type="number" id="custom-end" value="600" min="0" max="2100" step="100" oninput="clearStageSelection()" onkeydown="if(event.key === 'Enter') startTest('normal')">
+                <span>直接入力:</span>
+                <input type="number" id="custom-start" value="1" min="0" max="2027" step="100" oninput="clearStageSelection()" onkeydown="if(event.key === 'Enter') startTest('normal')">
+                <span style="color: #999;">〜</span>
+                <input type="number" id="custom-end" value="600" min="0" max="2027" step="100" oninput="clearStageSelection()" onkeydown="if(event.key === 'Enter') startTest('normal')">
             </div>
         </div>
 
@@ -103,31 +115,18 @@
     </div>
 
     <div id="result-screen" class="hidden">
-        <h2 style="margin-top: 40px;">Result</h2>
-        <div class="card" id="score-display" style="font-size: 32px; margin: 30px 0;">0/0</div>
+        <h2>Result</h2>
+        <div class="card" id="score-display" style="font-size: 32px;">0/0</div>
         <p id="saving-text" style="color: #28a745; font-weight: bold;"></p>
-        <button class="btn-main btn-blue" onclick="location.reload()">タイトルに戻る (Enter/Space)</button>
+        <button class="btn-main btn-blue" onclick="location.reload()">タイトルに戻る</button>
     </div>
 </div>
 
 <script>
-    let words = [];
-    let currentMode = 'normal';
-    let currentIndex = 0;
-    let isFront = true;
-    let correctWords = [];
-    let incorrectWords = [];
-
-    function setCount(num, btn) {
-        document.getElementById('question-count').value = num;
-        document.querySelectorAll('.count-btn').forEach(b => b.classList.remove('active'));
-        btn.classList.add('active');
-    }
-
-    function clearStageSelection() {
-        document.querySelectorAll('.stage-btn.active').forEach(b => b.classList.remove('active'));
-    }
-
+    /* JavaScriptはこれまでのものを継承（保存キー等は各csvに合わせて調整） */
+    let words = []; let currentMode = 'normal'; let currentIndex = 0; let isFront = true; let correctWords = []; let incorrectWords = [];
+    function setCount(num, btn) { document.getElementById('question-count').value = num; document.querySelectorAll('.count-btn').forEach(b => b.classList.remove('active')); btn.classList.add('active'); }
+    function clearStageSelection() { document.querySelectorAll('.stage-btn.active').forEach(b => b.classList.remove('active')); }
     function toggleStageBtn(btn) {
         btn.classList.toggle('active');
         const activeStages = document.querySelectorAll('.stage-btn.active');
@@ -136,58 +135,41 @@
             activeStages.forEach(b => {
                 const s = parseInt(b.getAttribute('data-start'));
                 const e = parseInt(b.getAttribute('data-end'));
-                if (s < minStart) minStart = s;
-                if (e > maxEnd) maxEnd = e;
+                if (s < minStart) minStart = s; if (e > maxEnd) maxEnd = e;
             });
             document.getElementById('custom-start').value = minStart;
             document.getElementById('custom-end').value = maxEnd;
         }
     }
-
     async function startTest(mode) {
         currentMode = mode;
         const count = parseInt(document.getElementById('question-count').value);
-
         if (mode === 'normal') {
             const selectedRanges = [];
             const activeStages = document.querySelectorAll('.stage-btn.active');
-
             if (activeStages.length > 0) {
-                activeStages.forEach(btn => {
-                    selectedRanges.push([parseInt(btn.getAttribute('data-start')), parseInt(btn.getAttribute('data-end'))]);
-                });
+                activeStages.forEach(btn => { selectedRanges.push([parseInt(btn.getAttribute('data-start')), parseInt(btn.getAttribute('data-end'))]); });
             } else {
                 const start = parseInt(document.getElementById('custom-start').value);
                 const end = parseInt(document.getElementById('custom-end').value);
-                if (!isNaN(start) && !isNaN(end)) {
-                    selectedRanges.push([start, end]);
-                }
+                if (!isNaN(start) && !isNaN(end)) selectedRanges.push([start, end]);
             }
-
-            if(selectedRanges.length === 0) { alert("範囲を選択するか、数字を入力してください。"); return; }
-
-            const response = await fetch('/get_words', {
-                method: 'POST',
-                headers: {'Content-Type': 'application/json'},
-                body: JSON.stringify({count: count, ranges: selectedRanges})
-            });
+            if(selectedRanges.length === 0) { alert("範囲を指定してください。"); return; }
+            const response = await fetch('/get_words', { method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({count: count, ranges: selectedRanges}) });
             const data = await response.json();
             if(data.error) { alert(data.error); return; }
             words = data.words;
-
         } else {
             let saved = JSON.parse(localStorage.getItem('weak_words') || '[]');
-            if (saved.length === 0) { alert("苦手な単語が登録されていません。"); return; }
+            if (saved.length === 0) { alert("苦手な単語がありません。"); return; }
             saved.sort(() => Math.random() - 0.5);
             words = saved.slice(0, count);
         }
-        
         currentIndex = 0; correctWords = []; incorrectWords = [];
         document.getElementById('setup-screen').classList.add('hidden');
         document.getElementById('test-screen').classList.remove('hidden');
         updateDisplay();
     }
-
     function updateDisplay() {
         if(currentIndex >= words.length) { finishTest(); return; }
         const word = words[currentIndex];
@@ -197,31 +179,21 @@
         document.getElementById('flip-controls').classList.toggle('hidden', !isFront);
         document.getElementById('judge-controls').classList.toggle('hidden', isFront);
     }
-
     function flipCard() { isFront = false; updateDisplay(); }
     function markCorrect() { correctWords.push(words[currentIndex]); nextCard(); }
     function markIncorrect() { incorrectWords.push(words[currentIndex]); nextCard(); }
     function nextCard() { currentIndex++; isFront = true; updateDisplay(); }
-
     function finishTest() {
         document.getElementById('test-screen').classList.add('hidden');
         document.getElementById('result-screen').classList.remove('hidden');
         document.getElementById('score-display').innerText = `${words.length}問中 ${correctWords.length}問正解`;
-
         let saved = JSON.parse(localStorage.getItem('weak_words') || '[]');
-        let weakDict = {};
-        saved.forEach(w => weakDict[w.Number] = w);
+        let weakDict = {}; saved.forEach(w => weakDict[w.Number] = w);
         incorrectWords.forEach(w => weakDict[w.Number] = w);
-        
-        if (currentMode === 'weak') {
-            correctWords.forEach(w => { if (weakDict[w.Number]) delete weakDict[w.Number]; });
-        }
-
+        if (currentMode === 'weak') correctWords.forEach(w => { if (weakDict[w.Number]) delete weakDict[w.Number]; });
         localStorage.setItem('weak_words', JSON.stringify(Object.values(weakDict)));
-        
-        document.getElementById('saving-text').innerText = "学習記録をお使いの端末に保存しました！";
+        document.getElementById('saving-text').innerText = "記録を保存しました。";
     }
-
     document.addEventListener('keydown', (e) => {
         if (!document.getElementById('test-screen').classList.contains('hidden')) {
             if ((e.code === 'Space' || e.code === 'Enter') && isFront) { e.preventDefault(); flipCard(); }
