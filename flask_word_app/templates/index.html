@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>システム英単語 Webテスト</title>
+    <title>ターゲット1900 Webテスト</title>
     <style>
         body { font-family: 'Helvetica Neue', Arial, sans-serif; background-color: #f0f2f5; text-align: center; color: #333; margin: 0; padding: 20px; }
         #app-container { 
@@ -18,7 +18,7 @@
         .setting-title { margin-top: 0; font-weight: bold; color: #495057; font-size: 14px; margin-bottom: 10px; display: block; }
         
         .select-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; margin-bottom: 10px; }
-        .select-grid-2 { display: grid; grid-template-columns: repeat(2, 1fr); gap: 8px; margin-bottom: 10px; }
+        .select-grid-3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin-bottom: 10px; }
         
         .btn-opt { 
             padding: 10px 5px; font-size: 13px; background-color: #fff; border: 1px solid #ced4da; 
@@ -46,7 +46,7 @@
         .btn-wrong { background-color: #e03131; color: white; }
         
         .hidden { display: none !important; }
-        .custom-inputs { display: flex; align-items: center; gap: 5px; margin-top: 10px;}
+        .custom-inputs { display: flex; align-items: center; gap: 5px; margin-top: 10px; background: #fff; padding: 8px; border-radius: 6px; border: 1px solid #ced4da;}
         input[type="number"] { width: 70px; padding: 8px 5px; border: 1px solid #ced4da; border-radius: 4px; text-align: center; }
     </style>
 </head>
@@ -54,11 +54,11 @@
 
 <div id="app-container">
     <div id="setup-screen">
-        <h1>システム英単語</h1>
+        <h1>ターゲット1900</h1>
         <div class="subtitle">Web Test Application</div>
         
         <div class="setting-box">
-            <span class="setting-title">■ 出題数</span>
+            <span class="setting-title">■ 出題数を選択</span>
             <div class="select-grid">
                 <button class="btn-opt count-btn active" onclick="setCount(10, this)">10問</button>
                 <button class="btn-opt count-btn" onclick="setCount(20, this)">20問</button>
@@ -69,19 +69,18 @@
         </div>
 
         <div class="setting-box">
-            <span class="setting-title">■ 範囲を選択（Stage指定）</span>
-            <div class="select-grid-2">
-                <button class="btn-opt stage-btn active" data-start="1" data-end="600" onclick="toggleStageBtn(this)">Stage 1<br><small>(1-600)</small></button>
-                <button class="btn-opt stage-btn" data-start="601" data-end="1200" onclick="toggleStageBtn(this)">Stage 2<br><small>(601-1200)</small></button>
-                <button class="btn-opt stage-btn" data-start="1201" data-end="1700" onclick="toggleStageBtn(this)">Stage 3<br><small>(1201-1700)</small></button>
-                <button class="btn-opt stage-btn" data-start="1701" data-end="2027" onclick="toggleStageBtn(this)">Stage 4<br><small>(1701-2027)</small></button>
+            <span class="setting-title">■ 範囲を選択（Part指定）</span>
+            <div class="select-grid-3">
+                <button class="btn-opt stage-btn active" data-start="1" data-end="800" onclick="toggleStageBtn(this)">Part 1<br><small>(1-800)</small></button>
+                <button class="btn-opt stage-btn" data-start="801" data-end="1500" onclick="toggleStageBtn(this)">Part 2<br><small>(801-1500)</small></button>
+                <button class="btn-opt stage-btn" data-start="1501" data-end="1900" onclick="toggleStageBtn(this)">Part 3<br><small>(1501-1900)</small></button>
             </div>
             
             <div class="custom-inputs">
-                <button class="btn-opt custom-btn" id="custom-range-toggle" onclick="toggleBtn(this)" style="flex-grow: 1; padding: 12px;">自由指定</button>
-                <input type="number" id="custom-start" value="1">
+                <span style="flex-grow: 1; text-align: left; font-weight: bold; color: #495057; font-size: 13px; padding-left: 5px;">直接入力：</span>
+                <input type="number" id="custom-start" value="1" min="0" max="1900" step="100" oninput="clearStageSelection()" onkeydown="if(event.key === 'Enter') startTest('normal')">
                 <span style="color: #666;">〜</span>
-                <input type="number" id="custom-end" value="2027">
+                <input type="number" id="custom-end" value="800" min="0" max="1900" step="100" oninput="clearStageSelection()" onkeydown="if(event.key === 'Enter') startTest('normal')">
             </div>
         </div>
 
@@ -124,7 +123,9 @@
         btn.classList.add('active');
     }
 
-    function toggleBtn(btn) { btn.classList.toggle('active'); }
+    function clearStageSelection() {
+        document.querySelectorAll('.stage-btn.active').forEach(b => b.classList.remove('active'));
+    }
 
     function toggleStageBtn(btn) {
         btn.classList.toggle('active');
@@ -148,13 +149,21 @@
 
         if (mode === 'normal') {
             const selectedRanges = [];
-            document.querySelectorAll('.stage-btn.active').forEach(btn => {
-                selectedRanges.push([parseInt(btn.getAttribute('data-start')), parseInt(btn.getAttribute('data-end'))]);
-            });
-            if (document.getElementById('custom-range-toggle').classList.contains('active')) {
-                selectedRanges.push([parseInt(document.getElementById('custom-start').value), parseInt(document.getElementById('custom-end').value)]);
+            const activeStages = document.querySelectorAll('.stage-btn.active');
+
+            if (activeStages.length > 0) {
+                activeStages.forEach(btn => {
+                    selectedRanges.push([parseInt(btn.getAttribute('data-start')), parseInt(btn.getAttribute('data-end'))]);
+                });
+            } else {
+                const start = parseInt(document.getElementById('custom-start').value);
+                const end = parseInt(document.getElementById('custom-end').value);
+                if (!isNaN(start) && !isNaN(end)) {
+                    selectedRanges.push([start, end]);
+                }
             }
-            if(selectedRanges.length === 0) { alert("範囲を選択してください。"); return; }
+
+            if(selectedRanges.length === 0) { alert("範囲を選択するか、数字を入力してください。"); return; }
 
             const response = await fetch('/get_words', {
                 method: 'POST',
@@ -166,7 +175,7 @@
             words = data.words;
 
         } else {
-            let saved = JSON.parse(localStorage.getItem('weak_words') || '[]');
+            let saved = JSON.parse(localStorage.getItem('target1900_weak') || '[]');
             if (saved.length === 0) { alert("苦手な単語が登録されていません。"); return; }
             saved.sort(() => Math.random() - 0.5);
             words = saved.slice(0, count);
@@ -198,8 +207,7 @@
         document.getElementById('result-screen').classList.remove('hidden');
         document.getElementById('score-display').innerText = `${words.length}問中 ${correctWords.length}問正解`;
 
-        // LocalStorageに保存
-        let saved = JSON.parse(localStorage.getItem('weak_words') || '[]');
+        let saved = JSON.parse(localStorage.getItem('target1900_weak') || '[]');
         let weakDict = {};
         saved.forEach(w => weakDict[w.Number] = w);
         incorrectWords.forEach(w => weakDict[w.Number] = w);
@@ -208,9 +216,7 @@
             correctWords.forEach(w => { if (weakDict[w.Number]) delete weakDict[w.Number]; });
         }
 
-        localStorage.setItem('weak_words', JSON.stringify(Object.values(weakDict)));
-        
-        // メッセージを更新
+        localStorage.setItem('target1900_weak', JSON.stringify(Object.values(weakDict)));
         document.getElementById('saving-text').innerText = "学習記録をお使いの端末に保存しました！";
     }
 
