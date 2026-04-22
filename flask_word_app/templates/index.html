@@ -49,7 +49,8 @@
         .mistake-left { display: flex; align-items: center; flex: 1; }
         .mistake-num { color: #6c757d; font-size: 13px; font-family: monospace; font-weight: bold; width: 45px; margin-right: 5px; }
         .mistake-eng { font-weight: bold; color: #333; } 
-        .mistake-jap { color: #e03131; font-weight: bold; text-align: right; flex: 1; margin-left: 10px; word-break: break-word; } 
+        /* 修正：赤シートで消えやすい明るい赤オレンジ(#ff5722)に変更し、太字(bold)を解除(normal) */
+        .mistake-jap { color: #ff5722; font-weight: normal; text-align: right; flex: 1; margin-left: 10px; word-break: break-word; } 
     </style>
 </head>
 <body>
@@ -129,7 +130,6 @@
         updateMistakeCount();
     });
 
-    // 修正：0個の時はボタンを非表示にし、1個以上ある時だけ表示する
     function updateMistakeCount() {
         let saved = JSON.parse(localStorage.getItem('weak_words') || '[]');
         const mistakeBtn = document.getElementById('mistake-list-btn');
